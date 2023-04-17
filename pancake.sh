@@ -41,8 +41,8 @@ install)
          git clone https://github.com/ostis-ai/sc-machine
     fi
 
-    if [ -e "kb.minimal" ]; then
-        cd sc-machine
+    if [ -e "ims.ostis.kb" ]; then
+        cd ims.ostis.kb
         echo KB.MINIMAL:
         git pull
         cd ..
