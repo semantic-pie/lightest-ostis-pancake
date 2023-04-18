@@ -6,8 +6,9 @@
 
 .vscode
 
-kb.bin
-ims.ostis.kb
 sc-machine
 sc-web
 
+repo.path
+ims.ostis.kb
+music.ostis.kb

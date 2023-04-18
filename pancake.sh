@@ -52,13 +52,26 @@ function prepare_sc_web() {
     cd $WORKDIR
 }
 
-function prepare_sc_ims() {
-    echo -e "\033[1mKB.MINIMAL\033[0m":
+function prepare_kb_ims() {
+    echo -e "\033[1mIMS.KB\033[0m":
     if [ -e "ims.ostis.kb" ]; then
         cd ims.ostis.kb
         git pull
     else
          git clone https://github.com/semantic-pie/minimal_kb ims.ostis.kb
+         echo 'ims.ostis.kb' >> repo.path
+    fi
+    cd $WORKDIR
+}
+
+function prepare_kb_music() {
+    echo -e "\033[1mMUSIC.KB\033[0m":
+    if [ -e "music.ostis.kb" ]; then
+        cd music.ostis.kb
+        git pull
+    else
+         git clone https://github.com/semantic-pie/music.ostis.kb
+         echo 'music.ostis.kb' >> repo.path
     fi
     cd $WORKDIR
 }
@@ -72,7 +85,8 @@ install)
     prepare_sc_web
     prepare_sc_machine
     prepare_problem_solver
-    prepare_sc_ims
+    prepare_kb_ims
+    prepare_kb_music
     ;;
 test)
     shift 1;
