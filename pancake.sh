@@ -59,7 +59,7 @@ function prepare_kb_ims() {
         git pull
     else
          git clone https://github.com/semantic-pie/minimal_kb ims.ostis.kb
-         echo 'ims.ostis.kb' >> repo.path
+        #  echo 'ims.ostis.kb' >> repo.path
     fi
     cd $WORKDIR
 }
@@ -71,7 +71,7 @@ function prepare_kb_music() {
         git pull
     else
          git clone https://github.com/semantic-pie/music.ostis.kb
-         echo 'music.ostis.kb' >> repo.path
+        #  echo 'music.ostis.kb' >> repo.path
     fi
     cd $WORKDIR
 }
