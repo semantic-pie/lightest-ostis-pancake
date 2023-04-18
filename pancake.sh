@@ -31,7 +31,7 @@ function prepare_sc_machine() {
 function prepare_problem_solver() {
     echo -e "\033[1mPROBLEM-SOLVER\033[0m":
     if [ -e "sc-machine/problem-solver" ]; then
-        cd problem-solver
+        cd sc-machine/problem-solver
         git pull
     else 
         cd sc-machine
