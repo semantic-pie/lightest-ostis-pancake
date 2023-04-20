@@ -1,6 +1,6 @@
 #!/bin/bash
 
-WORKDIR=$(PWD)
+WORKDIR=$(pwd)
 
 function usage() {
     cat <<USAGE
