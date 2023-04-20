@@ -76,6 +76,17 @@ function prepare_kb_music() {
     cd $WORKDIR
 }
 
+function prepare_kb_grap() {
+    echo -e "\033[1mGRAPH.KB\033[0m":
+    if [ -e "graph.ostis.kb" ]; then
+        cd graph.ostis.kb
+        git pull
+    else
+        git clone https://github.com/qaip/gt graph.ostis.kb
+        #  echo 'music.ostis.kb' >> repo.path
+    fi
+    cd $WORKDIR
+}
 
 case $1 in
 
@@ -87,10 +98,7 @@ install)
     prepare_problem_solver
     prepare_kb_ims
     prepare_kb_music
-    ;;
-test)
-    shift 1;
-    echo $WORKDIR
+    prepare_kb_grap
     ;;
 # show help
 --help)
