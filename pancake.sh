@@ -27,7 +27,7 @@ USAGE
 function prepare_component() {
     REPO=$1
     NAME=$2
-    echo -e "\033[1m$NAME\033[0m":
+    echo -e "\033[1m[$NAME]\033[0m":
     if [ -e "$NAME" ]; then
         cd $NAME
         git pull
@@ -64,7 +64,7 @@ function prepare_problem_solver() {
 function prepare_kb() {
     REPO=$1
     NAME=$2
-    echo -e "\033[1m$NAME\033[0m":
+    echo -e "\033[1m[$NAME]\033[0m":
 
     if [ -e "$NAME" ]; then
         cd "$NAME"
