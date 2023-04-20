@@ -1,6 +1,7 @@
 #!/bin/bash
 
 WORKDIR=$(pwd)
+KB_PATHS='repo.path'
 
 function usage() {
     cat <<USAGE
@@ -17,19 +18,32 @@ USAGE
     exit 1
 }
 
-function prepare_sc_machine() {
-    echo -e "\033[1mSC-MACHINE\033[0m":
-    if [ -e "sc-machine" ]; then
-        cd sc-machine
+# ==============================================
+# COMPONENTS PREPARE
+
+# clone / pull any component
+# $1 github repo
+# $2 folder name
+function prepare_component() {
+    REPO=$1
+    NAME=$2
+    echo -e "\033[1m$NAME\033[0m":
+    if [ -e "$NAME" ]; then
+        cd $NAME
         git pull
+        echo e
     else
-         git clone https://github.com/ostis-ai/sc-machine
+        git clone "$REPO" "$NAME"
+        echo not
     fi
-    cd $WORKDIR
+    cd $WORKDIR    
 }
 
+# clone / pull problem solver
+# specific, since its installation requires 
+# injection to sc-machine CmakeList
 function prepare_problem_solver() {
-    echo -e "\033[1mPROBLEM-SOLVER\033[0m":
+    echo -e "\033[1m[problem-solver]\033[0m":
     if [ -e "sc-machine/problem-solver" ]; then
         cd sc-machine/problem-solver
         git pull
@@ -41,64 +55,45 @@ function prepare_problem_solver() {
     cd $WORKDIR
 }
 
-function prepare_sc_web() {
-    echo -e "\033[1mSC-WEB\033[0m":
-    if [ -e "sc-web" ]; then
-        cd sc-web
+# ==============================================
+# KNOWlEDGE BASES PREPARE
+
+# clone / pull any kb and add them to repo.path
+# $1 github repo
+# $2 folder name
+function prepare_kb() {
+    REPO=$1
+    NAME=$2
+    echo -e "\033[1m$NAME\033[0m":
+
+    if [ -e "$NAME" ]; then
+        cd "$NAME"
         git pull
     else
-        git clone https://github.com/ostis-ai/sc-web
+         git clone "$REPO" "$NAME"
+         echo "$NAME" >> $KB_PATHS
     fi
     cd $WORKDIR
 }
 
-function prepare_kb_ims() {
-    echo -e "\033[1mIMS.KB\033[0m":
-    if [ -e "ims.ostis.kb" ]; then
-        cd ims.ostis.kb
-        git pull
-    else
-         git clone https://github.com/semantic-pie/minimal_kb ims.ostis.kb
-        #  echo 'ims.ostis.kb' >> repo.path
-    fi
-    cd $WORKDIR
-}
-
-function prepare_kb_music() {
-    echo -e "\033[1mMUSIC.KB\033[0m":
-    if [ -e "music.ostis.kb" ]; then
-        cd music.ostis.kb
-        git pull
-    else
-         git clone https://github.com/semantic-pie/music.ostis.kb
-        #  echo 'music.ostis.kb' >> repo.path
-    fi
-    cd $WORKDIR
-}
-
-function prepare_kb_grap() {
-    echo -e "\033[1mGRAPH.KB\033[0m":
-    if [ -e "graph.ostis.kb" ]; then
-        cd graph.ostis.kb
-        git pull
-    else
-        git clone https://github.com/qaip/gt graph.ostis.kb
-        #  echo 'music.ostis.kb' >> repo.path
-    fi
-    cd $WORKDIR
-}
+# ==============================================
+# COMMAND SWITCHER
 
 case $1 in
 
 # clone components
 install)
-    shift 1;
-    prepare_sc_web
-    prepare_sc_machine
+    # clone vitally important components 
+    prepare_component https://github.com/ostis-ai/sc-machine sc-machine
+    prepare_component https://github.com/ostis-ai/sc-web sc-web
     prepare_problem_solver
-    prepare_kb_ims
-    prepare_kb_music
-    prepare_kb_grap
+
+    # clone knowledge bases
+    prepare_kb https://github.com/semantic-pie/minimal_kb ims.ostis.kb
+    prepare_kb https://github.com/semantic-pie/music.ostis.kb music.ostis.kb
+    prepare_kb https://github.com/qaip/gt graph.ostis.kb
+    
+    shift 1;
     ;;
 # show help
 --help)
