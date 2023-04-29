@@ -2,6 +2,7 @@
 
 WORKDIR=$(pwd)
 KB_PATHS='repo.path'
+touch $KB_PATHS # create if not exist
 GIT_KB_REPOS_FILE='git.repo.path'
 export GIT_TERMINAL_PROMPT=0 # чтобы гит не ****
 
