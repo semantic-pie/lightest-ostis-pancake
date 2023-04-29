@@ -111,9 +111,13 @@ function prepare_all_kb() {
 
     # Loop through the file line by line
     while read -r repo_url repo_name || [[ -n "$repo_url" ]]; do
+        # simple comments
+        if [[ $repo_url == \#* ]]; then
+            continue
+        fi
         # if empty line
         if [ -z "$repo_url" ]; then
-            exit 
+            continue 
         elif [ -z "$repo_name" ]; then
             repo_name=$(basename "$repo_url")
         fi

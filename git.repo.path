@@ -1,3 +1,8 @@
+# large kb 
+# ostis-ai/ims.ostis.kb
+
+# minimal kb (remove dir if install large kb)
 semantic-pie/minimal_kb ims.ostis.kb
+
 semantic-pie/music.ostis.kb
 qaip/gt graph.ostis.kb
