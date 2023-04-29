@@ -2,6 +2,8 @@
 
 WORKDIR=$(pwd)
 KB_PATHS='repo.path'
+GIT_KB_REPOS_FILE='git.repo.path'
+export GIT_TERMINAL_PROMPT=0 # чтобы гит не ****
 
 function usage() {
     cat <<USAGE
@@ -18,30 +20,27 @@ USAGE
     exit 1
 }
 
+
 # ==============================================
-# COMPONENTS PREPARE
+# COMPONENTS PREPARE (SC-machine SC-web)
 
 # clone / pull any component
-# $1 github repo
-# $2 folder name
 function prepare_component() {
     REPO=$1
     NAME=$2
     echo -e "\033[1m[$NAME]\033[0m":
     if [ -e "$NAME" ]; then
-        cd $NAME
+        cd $NAME   
         git pull
-        echo e
     else
         git clone "$REPO" "$NAME"
-        echo not
     fi
-    cd $WORKDIR    
+    cd $WORKDIR
 }
 
 # clone / pull problem solver
-# specific, since its installation requires 
-# injection to sc-machine CmakeList
+# specific, cause its installation requires 
+# injection to sc-machine CMakeList.txt
 function prepare_problem_solver() {
     echo -e "\033[1m[problem-solver]\033[0m":
     if [ -e "sc-machine/problem-solver" ]; then
@@ -55,12 +54,38 @@ function prepare_problem_solver() {
     cd $WORKDIR
 }
 
+
+# ==============================================
+# UTILITIES 
+
+# check if repo ever exist and clone
+function clone_git_repo() {
+    REPO=$1
+    NAME=$2
+    if git ls-remote --exit-code $REPO > /dev/null 2>&1; then
+        # if repo exist - clone
+        git clone --depth=1 "$REPO" "$NAME"
+    else
+        echo "Repo: [$REPO] not exist."
+        exit 1
+    fi
+}
+
+# add to repo.path if it's not there yet
+function add_to_KB_PATHS() {
+    if ! grep -Fxq "$1" "$KB_PATHS"; then
+        echo "$1" >> $KB_PATHS
+    fi
+    if ! grep -Fxq "$1" ".gitignore"; then
+        echo "$1" >> ".gitignore"
+    fi
+}
+
+
 # ==============================================
 # KNOWlEDGE BASES PREPARE
 
-# clone / pull any kb and add them to repo.path
-# $1 github repo
-# $2 folder name
+# clone / pull any kb
 function prepare_kb() {
     REPO=$1
     NAME=$2
@@ -70,11 +95,34 @@ function prepare_kb() {
         cd "$NAME"
         git pull
     else
-         git clone "$REPO" "$NAME"
-         echo "$NAME" >> $KB_PATHS
+        # clone repo and (if success) add repo name to repo.path
+        clone_git_repo "$REPO" "$NAME" && add_to_KB_PATHS "$NAME"
     fi
     cd $WORKDIR
 }
+
+# clones all kb-repositories from git.repo.path
+function prepare_all_kb() {
+    # If the file exists
+    if [ ! -f "$GIT_KB_REPOS_FILE" ]; then
+        echo "git.repo.path not found!"
+        exit 1
+    fi
+
+    # Loop through the file line by line
+    while read -r repo_url repo_name || [[ -n "$repo_url" ]]; do
+        # if empty line
+        if [ -z "$repo_url" ]; then
+            exit 
+        elif [ -z "$repo_name" ]; then
+            repo_name=$(basename "$repo_url")
+        fi
+
+        prepare_kb "https://github.com/$repo_url" "$repo_name"
+
+    done < "$GIT_KB_REPOS_FILE"  
+}
+
 
 # ==============================================
 # COMMAND SWITCHER
@@ -89,9 +137,7 @@ install)
     prepare_problem_solver
 
     # clone knowledge bases
-    prepare_kb https://github.com/semantic-pie/minimal_kb ims.ostis.kb
-    prepare_kb https://github.com/semantic-pie/music.ostis.kb music.ostis.kb
-    prepare_kb https://github.com/qaip/gt graph.ostis.kb
+    prepare_all_kb
     
     shift 1;
     ;;
