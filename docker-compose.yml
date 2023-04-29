@@ -11,7 +11,7 @@ services:
       - ostis-network
     command:
       - "--server-host=machine"
-      - "--public-url=ws://45.9.43.16:8090/ws_json"
+      - "--public-url=ws://localhost:8090/ws_json"
     depends_on:
       machine:
         condition: service_healthy
