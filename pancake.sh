@@ -15,6 +15,7 @@ Usage:
     $0 add          adds a kb git repository
     $0 run          run ostis
     $0 unplug       remove kb from repo.path (not remove dir)
+    $0 info         display kb in use
 
 Options:
     --help, help, -h 
@@ -241,6 +242,36 @@ function remove_all_kb() {
     fi
 }
 
+# display content of repo.path and git.repo.path 
+function show_info() {
+    echo -e "\033[1m[LOCAL STORAGES]\033[0m":
+    while read -r repo_name; do
+        if [[  $repo_name == \#* ]]; then
+            continue
+        fi
+        if [[ -z "$repo_name" ]]; then
+            continue 
+        fi
+        echo $repo_name
+    done < "$KB_PATHS"  
+
+    echo ""
+
+    echo -e "\033[1m[SYNCHRONIZED GIT STORAGES]\033[0m":
+    while read -r repo_url repo_name; do
+        if [[ $repo_url == \#* ]]; then
+            continue
+        fi
+        # if empty line
+        if [ -z "$repo_url" ]; then
+            continue 
+        elif [ -z "$repo_name" ]; then
+            repo_name=$(basename "$repo_url")
+        fi
+        echo -e "$repo_name\t[$repo_url]"
+    done < "$GIT_KB_PATHS"  
+}
+
 # ==============================================
 # COMMAND SWITCHER
 
@@ -295,6 +326,9 @@ unplug)
     done
     ;;
 
+info)
+    show_info
+    ;;
 # show help
 --help)
     usage
