@@ -10,13 +10,14 @@ function usage() {
     cat <<USAGE
 
 Usage:
-    $0 install      installs necessary components (sc-web, sc-machine)
-    $0 clean        removes all kb folders from repo.path
-    $0 add          adds a kb git repository
+    $0 install      installs necessary components (sc-web, sc-machine) and clones knowledge bases
+    $0 clean        removes all kb folders
+    $0 add          adds a knowledge base from a local directory or a remote git repository
     $0 run          run ostis
-    $0 unplug       remove kb from repo.path (not remove dir)
-    $0 info         display kb in use
-
+    $0 unplug       removes a knowledge base from repo.path without deleting the directory
+    $0 info         displays information about the knowledge bases in use
+    $0 help         usage
+    
 Options:
     --help, help, -h 
 
