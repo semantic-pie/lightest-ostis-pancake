@@ -11,9 +11,11 @@ function usage() {
 
     Usage: 
         $0 install
+        $0 clean
      
     Options:
         install:       installs the necessary components ( sc-web, sc-machine ).
+        clean:         remove all kb folders ( from repo.path ).
 
         pancake - entry point for management 'lightest-ostis-pancake'.
 
@@ -82,6 +84,13 @@ function add_to_KB_PATHS() {
     fi
 }
 
+# remove from repo.path
+function remove_from_KB_PATHS() {
+    TEMP="path.temp"
+    sed "/$1/d" "$KB_PATHS" >> $TEMP
+    mv $TEMP "$KB_PATHS"
+}
+
 
 # ==============================================
 # KNOWlEDGE BASES PREPARE
@@ -129,6 +138,27 @@ function prepare_all_kb() {
 }
 
 
+# remove all local kb-repositories
+function remove_all_kb() {
+    # If the file exists
+    if [ ! -f "$KB_PATHS" ]; then
+        echo "repo.path not found!"
+        exit 1
+    fi
+
+    # Loop through the file line by line
+    while read -r repo_name; do
+        # simple comments
+        if [[ $repo_name == \#* ]]; then
+            continue
+        fi
+
+        rm -rf "$repo_name"
+        remove_from_KB_PATHS "$repo_name"
+
+    done < "$KB_PATHS"  
+}
+
 # ==============================================
 # COMMAND SWITCHER
 
@@ -144,6 +174,11 @@ install)
     # clone knowledge bases
     prepare_all_kb
     
+    shift 1;
+    ;;
+# clean project
+clean)
+    remove_all_kb
     shift 1;
     ;;
 # show help
