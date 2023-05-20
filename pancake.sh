@@ -3,7 +3,7 @@
 WORKDIR=$(pwd)
 KB_PATHS='repo.path'
 touch $KB_PATHS # create if not exist
-GIT_KB_REPOS_FILE='git.repo.path'
+GIT_KB_PATHS='git.repo.path'
 export GIT_TERMINAL_PROMPT=0 # чтобы гит не ****
 
 function usage() {
@@ -14,6 +14,7 @@ Usage:
     $0 clean        removes all kb folders from repo.path
     $0 add          adds a kb git repository
     $0 run          run ostis
+    $0 unplug       remove kb from repo.path (not remove dir)
 
 Options:
     --help, help, -h 
@@ -29,7 +30,7 @@ USAGE
 
 
 # ==============================================
-# COMPONENTS PREPARE (SC-machine SC-web)
+# COMPONENTS PREPARE (SC-machine SC-web ProblemSover)
 
 # clone / pull any component
 function prepare_component() {
@@ -82,9 +83,27 @@ function clone_git_repo() {
 function add_to_KB_PATHS() {
     if ! grep -Fxq "$1" "$KB_PATHS"; then
         echo "$1" >> $KB_PATHS
+        echo "ADDED SUCCESSFULLY [$1]"
+    else 
+        echo "ALREDY EXIST [$1]"
+        exit 1
     fi
-    if ! grep -Fxq "$1" ".gitignore"; then
-        echo "$1" >> ".gitignore"
+}
+
+# add to git.repo.path if it's not there yet
+function add_to_GIT_KB_PATHS() {
+    REPO=$1
+    NAME=$2
+    if git ls-remote --exit-code https://github.com/$REPO > /dev/null 2>&1; then
+        if ! grep -q -E "$REPO|$NAME" "$GIT_KB_PATHS"; then
+            echo "$REPO $NAME" >> $GIT_KB_PATHS
+           
+        else 
+            echo "Repository [$REPO=$NAME] alredy exists"
+        fi
+    else
+        echo "Repo: [https://github.com/$REPO] not exist."
+        exit 1
     fi
 }
 
@@ -93,6 +112,61 @@ function remove_from_KB_PATHS() {
     TEMP="path.temp"
     sed "/$1/d" "$KB_PATHS" >> $TEMP
     mv $TEMP "$KB_PATHS"
+}
+
+# remove from git.repo.path
+function remove_from_GIT_KB_PATHS() {
+    TEMP="path.temp"
+    sed "/$1/d" "$GIT_KB_PATHS" >> $TEMP
+    mv $TEMP "$GIT_KB_PATHS"
+}
+
+# add to repo.path
+function add_local_kb() {
+    for kb_name in "$@"
+    do
+        if [[ -e $kb_name ]];then
+            add_to_KB_PATHS $kb_name 
+        else 
+            echo "Directory: [$kb_name] not exist. (move your kb folder to the root directory)"
+        fi
+    done
+}
+
+# add to git.repo.path
+function add_remote_kb() {
+    for arg in "$@"
+    do
+        IFS=":" read -r repo_url repo_name <<< "$arg"
+    
+        if [[ ! $repo_url ]]; then
+                exit
+        fi
+        
+        if [[ ! $repo_name ]]; then
+                repo_name=$(basename "$repo_url")
+        fi
+        add_to_GIT_KB_PATHS $repo_url $repo_name
+
+        # install remote kb
+        prepare_kb "https://github.com/$repo_url" "$repo_name"
+    done 
+}
+
+# remove from repo.path
+function safe_remove_local_kb() {
+    for kb_name in "$@"
+    do
+        remove_from_KB_PATHS $kb_name
+    done
+}
+
+# remove from git.repo.path
+function safe_remove_remote_kb() {
+    for kb_name in "$@"
+    do
+        remove_from_GIT_KB_PATHS $kb_name     
+    done
 }
 
 
@@ -118,7 +192,7 @@ function prepare_kb() {
 # clones all kb-repositories from git.repo.path
 function prepare_all_kb() {
     # If the file exists
-    if [ ! -f "$GIT_KB_REPOS_FILE" ]; then
+    if [ ! -f "$GIT_KB_PATHS" ]; then
         echo "git.repo.path not found!"
         exit 1
     fi
@@ -138,7 +212,7 @@ function prepare_all_kb() {
 
         prepare_kb "https://github.com/$repo_url" "$repo_name"
 
-    done < "$GIT_KB_REPOS_FILE"  
+    done < "$GIT_KB_PATHS"  
 }
 
 
@@ -146,45 +220,24 @@ function prepare_all_kb() {
 function remove_all_kb() {
     # If the file exists
     if [ ! -f "$KB_PATHS" ]; then
-        echo "repo.path not found!"
+        echo "[repo.path] not found!"
         exit 1
     fi
 
-    # Loop through the file line by line
-    while read -r repo_name; do
-        # simple comments
-        if [[  $repo_name == \#* ]]; then
-            continue
-        fi
 
-        rm -rf "$repo_name"
-        remove_from_KB_PATHS "$repo_name"
+    read -p "Are you sure you want to delete all knowledge bases? (y/n):" answer
 
-    done < "$KB_PATHS"  
-}
-
-# add to git.repo.path
-function add_kb() {
-    IFS=":" read -r repo_url repo_name <<< "$arg"
-    
-    if [[ ! $repo_url ]]; then
-            exit
-    fi
-    
-    if [[ ! $repo_name ]]; then
-            repo_name=$(basename "$repo_url")
-    fi
-
-    if git ls-remote --exit-code https://github.com/$repo_url > /dev/null 2>&1; then
-        # if repo exist - clone
-        if ! grep -q -E "$repo_url|$repo_name" "$GIT_KB_REPOS_FILE"; then
-            echo "$repo_url $repo_name" >> $GIT_KB_REPOS_FILE
-        else 
-            echo "Repository [$repo_url $repo_name] alredy exists"
-        fi
+    if [[ $answer == "y" || $answer == "Y" ]]; then
+        while read -r repo_name; do
+            if [[  $repo_name == \#* ]]; then
+                continue
+            fi
+            rm -rf "$repo_name"
+            remove_from_KB_PATHS "$repo_name"
+        done < "$KB_PATHS"  
+        echo "Removed."
     else
-        echo "Repo: [https://github.com/$repo_url] not exist."
-        exit 1
+        echo "Canceled."
     fi
 }
 
@@ -202,26 +255,46 @@ install)
 
     # clone knowledge bases
     prepare_all_kb
-    
-    shift 1;
     ;;
-# clean project
+
+# clean project (remove all kbs)
 clean)
     remove_all_kb
-    shift 1;
     ;;
-# add kb
+
+# add kb. Remote or local
 add)
     shift 1;
-    # remove_all_kb 
-    for arg in "$@"
-    do
-        add_kb $arg
+    while getopts "u" opt; do
+        case $opt in
+        u) IS_GIT_URL=1 ;;
+        \?) echoerr "Invalid option -$OPTARG" && usage ;;
+        esac
     done
+    shift $((OPTIND - 1))
+
+    if [[ $IS_GIT_URL ]]; then
+        add_remote_kb $@
+    else 
+        add_local_kb $@
+    fi
     ;;
+
+# run ostis
 run)
     docker compose up
     ;;
+
+# unplug kb without complete removal 
+unplug)
+    shift 1; 
+    for kb_name in "$@"
+    do
+        safe_remove_local_kb $@
+        safe_remove_remote_kb $@
+    done
+    ;;
+
 # show help
 --help)
     usage
