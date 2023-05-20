@@ -38,6 +38,8 @@ To add a knowledge base from a remote git repository, run the following command:
 ./pancake.sh add -u github_username/repo_name
 ```
 
+Replace github_username/repo_name with the GitHub username and repository name of the knowledge base.
+
 You can use the following:
 
 ```bash
@@ -45,8 +47,6 @@ You can use the following:
 ```
 
 Replace <repo_url> with the URL of the git repository and <repo_name> with the desired name for the repository. If <repo_name> is not provided, it will default to the repository's base name.
-
-Replace github_username/repo_name with the GitHub username and repository name of the knowledge base.
 
 <br/>
 
