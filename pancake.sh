@@ -9,17 +9,19 @@ export GIT_TERMINAL_PROMPT=0 # чтобы гит не ****
 function usage() {
     cat <<USAGE
 
-    Usage: 
-        $0 install
-        $0 clean
-        $0 add
-     
-    Options:
-        install:       installs the necessary components ( sc-web, sc-machine ).
-        clean:         remove all kb folders ( from repo.path ).
-        add:           add kb git repository
+Usage:
+    $0 install      installs necessary components (sc-web, sc-machine)
+    $0 clean        removes all kb folders from repo.path
+    $0 add          adds a kb git repository
+    $0 run          run ostis
 
-        pancake - entry point for management 'lightest-ostis-pancake'.
+Options:
+    --help, help, -h 
+
+Description:
+    pancake - script allows you to install and manage knowledge bases. 
+    It can install the required components, clean up existing knowledge bases, 
+    and add new knowledge bases from git repositories.
 
 USAGE
     exit 1
@@ -216,6 +218,9 @@ add)
     do
         add_kb $arg
     done
+    ;;
+run)
+    docker compose up
     ;;
 # show help
 --help)
