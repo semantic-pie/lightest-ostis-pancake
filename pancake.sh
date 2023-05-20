@@ -12,10 +12,12 @@ function usage() {
     Usage: 
         $0 install
         $0 clean
+        $0 add
      
     Options:
         install:       installs the necessary components ( sc-web, sc-machine ).
         clean:         remove all kb folders ( from repo.path ).
+        add:           add kb git repository
 
         pancake - entry point for management 'lightest-ostis-pancake'.
 
