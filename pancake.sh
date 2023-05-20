@@ -149,7 +149,7 @@ function remove_all_kb() {
     # Loop through the file line by line
     while read -r repo_name; do
         # simple comments
-        if [[ $repo_name == \#* ]]; then
+        if [[  $repo_name == \#* ]]; then
             continue
         fi
 
@@ -157,6 +157,31 @@ function remove_all_kb() {
         remove_from_KB_PATHS "$repo_name"
 
     done < "$KB_PATHS"  
+}
+
+# add to git.repo.path
+function add_kb() {
+    IFS=":" read -r repo_url repo_name <<< "$arg"
+    
+    if [[ ! $repo_url ]]; then
+            exit
+    fi
+    
+    if [[ ! $repo_name ]]; then
+            repo_name=$(basename "$repo_url")
+    fi
+
+    if git ls-remote --exit-code https://github.com/$repo_url > /dev/null 2>&1; then
+        # if repo exist - clone
+        if ! grep -q -E "$repo_url|$repo_name" "$GIT_KB_REPOS_FILE"; then
+            echo "$repo_url $repo_name" >> $GIT_KB_REPOS_FILE
+        else 
+            echo "Repository [$repo_url $repo_name] alredy exists"
+        fi
+    else
+        echo "Repo: [https://github.com/$repo_url] not exist."
+        exit 1
+    fi
 }
 
 # ==============================================
@@ -180,6 +205,15 @@ install)
 clean)
     remove_all_kb
     shift 1;
+    ;;
+# add kb
+add)
+    shift 1;
+    # remove_all_kb 
+    for arg in "$@"
+    do
+        add_kb $arg
+    done
     ;;
 # show help
 --help)
