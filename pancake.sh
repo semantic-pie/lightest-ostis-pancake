@@ -339,6 +339,15 @@ stop)
     docker compose down 
     ;;
 
+# restart ostis
+restart)
+    shift 1;
+    docker compose down 
+    prepare_all_kb
+    docker compose up -d
+    echo "[RESTARTED]"
+    ;;
+
 # unplug kb without complete removal 
 unplug)
     shift 1; 
