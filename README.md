@@ -58,6 +58,24 @@ To run ostis, use following command:
 ./pancake.sh run
 ```
 
+Run in the background:
+
+```bash
+./pancake.sh run -d
+```
+
+Stop:
+
+```bash
+./pancake.sh stop
+```
+
+You can also:
+
+```bash
+./pancake.sh restart
+```
+
 <br/>
 
 ## Unplug Knowledge Base
