@@ -315,19 +315,28 @@ add)
 # run ostis
 run)
     shift 1;
-    while getopts "u" opt; do
+    while getopts "d" opt; do
         case $opt in
         d) DETACHED=1 ;;
-        \?) echoerr "Invalid option -$OPTARG" && usage ;;
+        \?) echo "Invalid option -$OPTARG" && usage
+            exit 1
+             ;;
         esac
     done
     shift $((OPTIND - 1))
 
     if [[ $DETACHED ]]; then
+        echo "STARTING..."
         docker compose up -d
     else 
         docker compose up
     fi
+    ;;
+
+# stop ostis
+stop)
+    shift 1;
+    docker compose down 
     ;;
 
 # unplug kb without complete removal 
