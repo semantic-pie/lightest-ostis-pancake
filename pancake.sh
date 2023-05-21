@@ -4,27 +4,53 @@ WORKDIR=$(pwd)
 KB_PATHS='repo.path'
 touch $KB_PATHS # create if not exist
 GIT_KB_PATHS='git.repo.path'
-export GIT_TERMINAL_PROMPT=0 # чтобы гит не ****
+export GIT_TERMINAL_PROMPT=0
 
 function usage() {
     cat <<USAGE
 
 Usage:
-    $0 install      installs necessary components (sc-web, sc-machine) and clones knowledge bases
-    $0 clean        removes all kb folders
-    $0 add          adds a knowledge base from a local directory or a remote git repository
-    $0 run          run ostis
-    $0 unplug       removes a knowledge base from repo.path without deleting the directory
-    $0 info         displays information about the knowledge bases in use
-    $0 help         usage
-    
-Options:
-    --help, help, -h 
+    $0 [command] [options]
+
+Commands:
+    install      Install necessary components (sc-web, sc-machine) and clone knowledge bases
+    clean        Remove all knowledge base folders
+    add          Add a knowledge base from a local directory or a remote git repository
+    run          Run ostis
+    unplug       Remove a knowledge base from repo.path without deleting the directory
+    info         Display information about the knowledge bases in use
+    help         Show usage information
 
 Description:
-    pancake - script allows you to install and manage knowledge bases. 
-    It can install the required components, clean up existing knowledge bases, 
+    pancake - script that allows you to install and manage knowledge bases.
+    It can install the required components, clean up existing knowledge bases,
     and add new knowledge bases from git repositories.
+
+USAGE
+    exit 1
+}
+
+function run_usage() {
+    cat <<USAGE
+
+Usage:
+    $0 run [-d]
+
+Options:
+    d      Detached run. Run docker containers in detached mod.
+
+USAGE
+    exit 1
+}
+
+function add_usage() {
+    cat <<USAGE
+
+Usage:
+    $0 add [-u]
+
+Options:
+    u      Install from remote repository
 
 USAGE
     exit 1
@@ -297,10 +323,11 @@ clean)
 # add kb. Remote or local
 add)
     shift 1;
-    while getopts "u" opt; do
+    while getopts "uh" opt; do
         case $opt in
         u) IS_GIT_URL=1 ;;
-        \?) echoerr "Invalid option -$OPTARG" && usage ;;
+        h) add_usage  ;;
+        \?) echoerr "Invalid option -$OPTARG" && add_usage ;;
         esac
     done
     shift $((OPTIND - 1))
@@ -315,10 +342,11 @@ add)
 # run ostis
 run)
     shift 1;
-    while getopts "d" opt; do
+    while getopts "dh" opt; do
         case $opt in
         d) DETACHED=1 ;;
-        \?) echo "Invalid option -$OPTARG" && usage
+        h) run_usage  ;;
+        \?) echo "Invalid option -$OPTARG" && run_usage
             exit 1
              ;;
         esac
