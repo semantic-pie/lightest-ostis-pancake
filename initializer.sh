@@ -2,7 +2,6 @@
 
 git clone https://github.com/ostis-ai/sc-machine
 git clone https://github.com/ostis-ai/sc-web
-git clone https://github.com/ostis-apps/ostis-example-app
 
 cd sc-machine
 git checkout 0.7.0-Rebirth
