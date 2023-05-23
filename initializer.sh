@@ -17,7 +17,7 @@ cd ..
 rm -rf ostis-example-app
 
 echo 'sc-machine/problem-solver/cxx/exampleModule/specifications/agent_of_isomorphic_search' >> repo.path
-echo 'problem-solver/cxx/exampleModule/specifications/agent_of_subdividing_search' >> repo.path
+echo 'sc-machine/problem-solver/cxx/exampleModule/specifications/agent_of_subdividing_search' >> repo.path
 echo 'kb' >> repo.path
 
 
