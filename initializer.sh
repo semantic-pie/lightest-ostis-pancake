@@ -10,15 +10,8 @@ git checkout 0.7.0-Rebirth
 cd ../sc-web
 git checkout 0.7.0-Rebirth
 
-cd ../ostis-example-app
-git checkout 0.7.0
-mv kb ..
-cd ..
-rm -rf ostis-example-app
-
 echo 'sc-machine/problem-solver/cxx/exampleModule/specifications/agent_of_isomorphic_search' >> repo.path
 echo 'sc-machine/problem-solver/cxx/exampleModule/specifications/agent_of_subdividing_search' >> repo.path
-echo 'kb' >> repo.path
 
 
 
