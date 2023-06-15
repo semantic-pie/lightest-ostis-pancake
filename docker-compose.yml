@@ -1,5 +1,6 @@
 services:
   machine:
+    container_name: sc-machine
     image: ostis/sc-machine:latest
     build:
       context: ./sc-machine
