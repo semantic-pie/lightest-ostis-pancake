@@ -1,7 +1,7 @@
 #!/bin/bash
 
 WORKDIR=$(pwd)
-KB_PATHS='repo.path'
+KB_PATHS='kb/repo.path'
 touch $KB_PATHS # create if not exist
 GIT_KB_PATHS='git.repo.path'
 export GIT_TERMINAL_PROMPT=0
