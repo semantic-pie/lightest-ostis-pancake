@@ -1,14 +1,16 @@
 services:
   machine:
     container_name: sc-machine
-    image: ostis/sc-machine:latest
+      #image: ostis/sc-machine:latest
     build:
       context: ./sc-machine
     volumes:
       - ./kb:/kb
       - kb-binary:/kb.bin
+      - ./configs/sc-machine.ini:/sc-machine/sc-machine.ini
+      - ./configs/docker_entrypoint.sh:/sc-machine/scripts/docker_entrypoint.sh
     networks:
-      - sc-machine
+      - semantic-pie-network
     ports:
       - "8090:8090"
     healthcheck:
@@ -18,7 +20,6 @@ services:
       retries: 3
       start_period: 120s
     environment:
-      # Use the commented env variable if you need to rebuild KB every startup.
       - "REBUILD_KB=${REBUILD_KB:-1}"
       - "KB_PATH=${KB_PATH:-/kb/repo.path}"
       - "BINARY_PATH=/sc-machine/bin"
@@ -28,14 +29,14 @@ services:
 
   web:
     container_name: sc-web
-    image: ostis/sc-web:latest
+      # image: ostis/sc-web:latest
     build:
       context: ./sc-web
     restart: unless-stopped
     ports:
       - "80:8000"
     networks:
-      - sc-machine
+      - semantic-pie-network
     command:
       - "--server-host=machine"
       - "--public-url=ws://localhost:8090/ws_json"
@@ -47,4 +48,4 @@ volumes:
   kb-binary: {}
 
 networks:
-  sc-machine: {}
+  semantic-pie-network: {}
