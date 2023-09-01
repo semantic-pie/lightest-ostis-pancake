@@ -66,12 +66,17 @@ USAGE
 function prepare_component() {
     REPO=$1
     NAME=$2
+    BRANCH=$3
     echo -e "\033[1m[$NAME]\033[0m":
     if [ -e "$NAME" ]; then
         cd $NAME   
         git pull
     else
+        if [ "$BRANCH" ]; then 
+            git clone --branch "$BRANCH" "$REPO" "$NAME"
+        else 
         git clone "$REPO" "$NAME"
+        fi
     fi
     cd $WORKDIR
 }
