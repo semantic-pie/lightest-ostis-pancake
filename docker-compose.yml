@@ -1,7 +1,6 @@
 services:
   web:
-    container_name: sc-web
-    image: ostis/sc-web:0.7.0
+    container_name: sc-web-0.7.0
     build:
       context: ./sc-web
     restart: unless-stopped
@@ -17,13 +16,14 @@ services:
         condition: service_healthy
 
   machine:
-    container_name: sc-machine
-    image: ostis/sc-machine:0.7.0
+    container_name: sc-machine-0.7.0
     build:
       context: ./sc-machine
     restart: unless-stopped
     volumes:
-      - ./:/kb
+      - ./kb:/kb
+      - kb-binary:/kb.bin
+      - ./configs/sc-machine.ini:/sc-machine/sc-machine.ini
     networks:
       - ostis-network
     ports:
@@ -38,10 +38,13 @@ services:
       # Use the commented env variable if you need to rebuild KB every startup.
       - "REBUILD_KB=1"
       - "KB_PATH=/kb/repo.path"
-      - "CONFIG_PATH=/kb/ostis-web-platform.ini"
+      - "CONFIG_PATH=/sc-machine/sc-machine.ini"
       - "BINARY_PATH=/sc-machine/bin"
     command:
       - "serve"
+
+volumes:
+  kb-binary: {}
 
 networks:
   ostis-network: {}

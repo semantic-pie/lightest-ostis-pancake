@@ -1,7 +1,9 @@
 #!/bin/bash
 
 WORKDIR=$(pwd)
-KB_PATHS='repo.path'
+KB_PATHS='kb/repo.path'
+KB_DIR='kb'
+mkdir -p  $KB_DIR
 touch $KB_PATHS # create if not exist
 GIT_KB_PATHS='git.repo.path'
 export GIT_TERMINAL_PROMPT=0
@@ -64,12 +66,17 @@ USAGE
 function prepare_component() {
     REPO=$1
     NAME=$2
+    BRANCH=$3
     echo -e "\033[1m[$NAME]\033[0m":
     if [ -e "$NAME" ]; then
         cd $NAME   
         git pull
     else
+        if [ "$BRANCH" ]; then 
+            git clone --branch "$BRANCH" "$REPO" "$NAME"
+        else 
         git clone "$REPO" "$NAME"
+        fi
     fi
     cd $WORKDIR
 }
@@ -156,7 +163,7 @@ function add_local_kb() {
         if [[ -e $kb_name ]];then
             add_to_KB_PATHS $kb_name 
         else 
-            echo "Directory: [$kb_name] not exist. (move your kb folder to the root directory)"
+            echo "Directory: [$kb_name] not exist. (move your kb folder to the kb directory)"
         fi
     done
 }
@@ -205,6 +212,7 @@ function safe_remove_remote_kb() {
 function prepare_kb() {
     REPO=$1
     NAME=$2
+    NORMAL_NAME=$NAME
     echo -e "\033[1m[$NAME]\033[0m":
 
     if [ -e "$NAME" ]; then
@@ -212,7 +220,7 @@ function prepare_kb() {
         git pull
     else
         # clone repo and (if success) add repo name to repo.path
-        clone_git_repo "$REPO" "$NAME" && add_to_KB_PATHS "$NAME"
+         clone_git_repo "$REPO" "$KB_DIR/$NAME" && add_to_KB_PATHS "$NORMAL_NAME"
     fi
     cd $WORKDIR
 }
@@ -307,8 +315,8 @@ case $1 in
 # clone components
 install)
     # clone vitally important components 
-    prepare_component https://github.com/ostis-ai/sc-machine sc-machine
-    prepare_component https://github.com/ostis-ai/sc-web sc-web
+    prepare_component https://github.com/ostis-ai/sc-machine sc-machine 0.7.0-Rebirth 
+    prepare_component https://github.com/ostis-ai/sc-web sc-web 0.7.0-Rebirth
     prepare_problem_solver
 
     # clone knowledge bases
