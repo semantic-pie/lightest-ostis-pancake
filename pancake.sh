@@ -315,7 +315,7 @@ case $1 in
 # clone components
 install)
     # clone vitally important components 
-    prepare_component https://github.com/ostis-ai/sc-machine sc-machine
+    prepare_component https://github.com/NikitaZotov/sc-machine-1 sc-machine fix/deadlocks
     prepare_component https://github.com/ostis-ai/sc-web sc-web
     prepare_problem_solver
 
